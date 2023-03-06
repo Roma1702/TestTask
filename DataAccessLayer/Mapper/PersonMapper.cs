@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer.DTO;
 using DataAccessLayer.Entities;
+using static Bogus.DataSets.Name;
 
 namespace DataAccessLayer.Mapper
 {

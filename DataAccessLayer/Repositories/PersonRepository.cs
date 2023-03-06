@@ -4,6 +4,7 @@ using DataAccessLayer.DTO;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using static Bogus.DataSets.Name;
 
 namespace DataAccessLayer.Repositories
 {
@@ -33,12 +34,41 @@ namespace DataAccessLayer.Repositories
         public async Task CreateTable()
         {
             await _context.Database.EnsureDeletedAsync();
+
+            await _context.Database.EnsureCreatedAsync();
         }
 
-        public async Task<IEnumerable<PersonDto>> GetUniqueFields()
+        public async Task<IEnumerable<ShortPersonDto>> FindByConditionAsync()
         {
-            var uniquePerson = await _dbSet
-                .GroupBy(p => new {p.FullName, p.BirthDate})
+            var people = await _dbSet.Where(x => x.Gender!.Value == Gender.Male && x.FullName!.StartsWith("F"))
+                .ToListAsync();
+
+            var personDto = _mapper.Map<IEnumerable<ShortPersonDto>>(people);
+
+            return personDto;
+        }
+
+        public async Task GenerateHundredPeopleAsync()
+        {
+            var people = FakeData.GenerateHundredPeople();
+
+            await _dbSet.AddRangeAsync(people);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task GenerateMillionPeopleAsync()
+        {
+            var people = FakeData.GenerateMillionPeople();
+
+            await _dbSet.AddRangeAsync(people);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<PersonDto>> GetUniqueFieldsAsync()
+        {
+            var uniquePerson = await _dbSet.GroupBy(p => new {p.FullName, p.BirthDate})
                 .Select(g => g.First())
                 .ToListAsync();
 

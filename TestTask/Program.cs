@@ -1,5 +1,4 @@
-﻿using DataAccessLayer.Interfaces;
-using DataAccessLayer.Repositories.DependencyInject;
+﻿using DataAccessLayer.Repositories.DependencyInject;
 using Microsoft.Extensions.DependencyInjection;
 using TestTask.Services.DependencyInject;
 using TestTask.Validators.DependencyInject;

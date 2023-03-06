@@ -16,5 +16,10 @@ namespace DataAccessLayer.Context
             base.OnConfiguring(optionsBuilder);
             optionsBuilder.UseSqlServer(connectionString);
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Person>().HasIndex(u => new { u.FullName, u.Gender });
+        }
     }
 }

@@ -6,6 +6,9 @@ namespace DataAccessLayer.Interfaces
     {
         Task CreateTable();
         Task CreateAsync(ShortPersonDto personDto);
-        Task<IEnumerable<PersonDto>> GetUniqueFields();
+        Task<IEnumerable<PersonDto>> GetUniqueFieldsAsync();
+        Task<IEnumerable<ShortPersonDto>> FindByConditionAsync();
+        Task GenerateMillionPeopleAsync();
+        Task GenerateHundredPeopleAsync();
     }
 }

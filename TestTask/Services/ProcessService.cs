@@ -1,6 +1,7 @@
 ﻿using DataAccessLayer.DTO;
 using DataAccessLayer.Interfaces;
 using FluentValidation;
+using System.Diagnostics;
 using TestTask.Interfaces;
 
 namespace TestTask.Services
@@ -31,43 +32,92 @@ namespace TestTask.Services
             switch (args[0])
             {
                 case "1":
-                    await _personRepository.CreateTable();
+                    await ExecuteTask1();
                     break;
                 case "2":
-                    if (args.Length != 4)
-                    {
-                        await Console.Out.WriteLineAsync("Please enter the full name, birth date and gender!");
-                        return;
-                    }
-
-                    var shortPersonDto = _personBinder.BindPerson(args);
-
-                    var personDto = _validator.Validate(shortPersonDto);
-
-                    if (!personDto.IsValid)
-                    {
-                        foreach (var failure in personDto.Errors)
-                        {
-                            await Console.Out.WriteLineAsync("Property " + failure.PropertyName +
-                                " failed validation. Error was: " + failure.ErrorMessage);
-                            return;
-                        }
-                    }
-
-                    await _personRepository.CreateAsync(shortPersonDto);
+                    await ExecuteTask2(args);
                     break;
                 case "3":
-                    var uniquePerson = await _personRepository.GetUniqueFields();
-
-                    foreach(var person in uniquePerson)
-                    {
-                        await Console.Out.WriteLineAsync(person.ToString());
-                    }
+                    await ExecuteTask3();
+                    break;
+                case "4":
+                    await ExecuteTask4();
+                    break;
+                case "5":
+                    await ExecuteTask5();
                     break;
                 default:
                     Console.WriteLine("Undefined command.");
                     break;
             }
+        }
+
+        private async Task ExecuteTask1()
+        {
+            await _personRepository.CreateTable();
+        }
+
+        private async Task ExecuteTask2(string[] args)
+        {
+            if (args.Length != 4)
+            {
+                await Console.Out.WriteLineAsync("Please enter the full name, birth date and gender!");
+                return;
+            }
+            try
+            {
+                var shortPersonDto = _personBinder.BindPerson(args);
+
+                var personDto = _validator.Validate(shortPersonDto);
+
+                if (!personDto.IsValid)
+                {
+                    foreach (var failure in personDto.Errors)
+                    {
+                        await Console.Out.WriteLineAsync("Property " + failure.PropertyName +
+                            " failed validation. Error was: " + failure.ErrorMessage);
+                    }
+                }
+                else
+                    await _personRepository.CreateAsync(shortPersonDto);
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+            }
+        }
+
+        private async Task ExecuteTask3()
+        {
+            var uniquePeople = await _personRepository.GetUniqueFieldsAsync();
+
+            foreach (var person in uniquePeople)
+            {
+                await Console.Out.WriteLineAsync(person.ToString());
+            }
+        }
+
+        private async Task ExecuteTask4()
+        {
+            await _personRepository.GenerateMillionPeopleAsync();
+
+            await _personRepository.GenerateHundredPeopleAsync();
+        }
+
+        private async Task ExecuteTask5()
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            var filteredPeople = await _personRepository.FindByConditionAsync();
+
+            stopwatch.Stop();
+
+            foreach (var person in filteredPeople)
+            {
+                await Console.Out.WriteLineAsync(person.ToString());
+            }
+
+            await Console.Out.WriteLineAsync($"Duration: {stopwatch.ElapsedMilliseconds / 1000.0} seconds");
         }
     }
 }
